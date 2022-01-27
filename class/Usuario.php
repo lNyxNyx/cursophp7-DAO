@@ -65,4 +65,41 @@ class Usuario
             //"dtcadastro"=>$this->getDtcadastro()-> format("d/m/t H:i:s")
         ));
     }
+
+    // lista de usuários no banco
+
+    public static function getList()
+    {
+        $sql = new Sql();
+        return $sql->select("SELECT * FROM tb_usuarios  ORDER BY deslogin");
+    }
+
+    // Retorna um usuário específico 
+    public static function Search($login)
+    {
+        $sql = new Sql();
+        return $sql->select("SELECT * FROM tb_usuarios  WHERE deslogin LIKE :SEARCH ORDER BY deslogin", array(
+            ":SEARCH" => "%" . $login . "%"
+        ));
+    }
+
+    // Autentificação 
+    public function Login($login, $password)
+    {
+        $sql = new Sql();
+        $result = $sql->select("SELECT * FROM tb_usuarios WHERE deslogin = :LOGIN AND dessenha =:PASSWORD", array(
+            ":LOGIN" => $login,
+            ":PASSWORD" => $password
+        ));
+
+        if (isset($result[0])) { //Ou  if(count($result)>0){} 
+            $row = $result[0];
+            $this->setIdusuario($row['idusuarios']);
+            $this->setDeslogin($row['deslogin']);
+            $this->setDessenha($row['dessenha']);
+            //$this-> setDtcadastro(new Datetime($row['dessenha']));
+        } else {
+            throw new Exception("Login ou Senha inválida");
+        }
+    }
 }
